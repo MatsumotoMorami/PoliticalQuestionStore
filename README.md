@@ -9,14 +9,14 @@ Vue 3 + Vite 政治题库练习站点。
 - Pinia
 - Vue Router
 - Element Plus
-- pnpm
+- npm
 - Docker + nginx
 
 ## Local Dev
 
 ```bash
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
 默认开发地址：`http://localhost:5173/`
@@ -24,7 +24,7 @@ pnpm dev
 ## Build
 
 ```bash
-pnpm build
+npm run build
 ```
 
 产物输出到 `dist/`。
