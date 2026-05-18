@@ -1,6 +1,6 @@
 # PoliticalQuestionStore
 
-Vue 3 + Vite 题库练习站点，包含政治题库与 NCRE 三级题库模块。
+Vue 3 + Vite 政治题库练习站点。
 
 ## Stack
 
@@ -45,7 +45,6 @@ GitHub Actions 工作流位于 `.github/workflows/deploy.yml`。
 触发方式：
 
 - push 到 `main`
-- push 到 `dev-Kohakuwu`
 - 手动运行 workflow
 
 部署流程：
