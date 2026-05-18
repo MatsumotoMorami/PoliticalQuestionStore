@@ -1,110 +1,80 @@
-# Political Exam Practice System
+# PoliticalQuestionStore
 
-一个基于 Vue 3 + Vite 的政治理论课刷题与模拟考试系统。旨在帮助学生高效复习各类政治理论课程，支持多种题型练习、模拟考试、错题回顾、收藏/标记，以及 AI 辅助学习。项目同时内置了**全国计算机等级考试三级**题库模块。
+Vue 3 + Vite 题库练习站点，包含政治题库与 NCRE 三级题库模块。
 
-## ✨ 主要功能 (Features)
+## Stack
 
-- **多科目支持**：涵盖马原、毛概、思修（思想道德与法治）、史纲、习概、改开史、新中国史、党史、社主史等多个政治理论科目。
-- **全题型覆盖**：
-  - 单选题 (Single Choice)
-  - 多选题 (Multiple Choice)
-  - 判断题 (True/False)
-  - 填空题 (Fill in the Blank)
-- **模拟考试 (Mock Exam)**：
-  - 按试卷或章节练习
-  - 自动评分与答题解析
-  - 错题自动归入错题本
-- **个性化学习**：
-  - **错题本 (Wrong Questions)**：自动记录做错的题目，方便查漏补缺。
-  - **收藏夹 (Favorites)**：题目右上角一键收藏 / 取消收藏，状态持久化到本地。
-  - **标记 (Marks)**：与收藏并列的标记按钮，用于额外标注重点题；同样持久化。
-  - **学习记录 (User Records)**：统计做题次数、错题次数与最近错题日期。
-- **NCRE 三级题库**：独立模块（`/ncre3`），覆盖三级网络技术 / 数据库技术等题型，并支持基于 mermaid 的 UML 图渲染。
-- **实用工具**：
-  - **PDF 导出**：支持将试题列表导出为 PDF 或直接打印。
-  - **AI 助手 (Beta)**：内置对话页面，辅助解答疑惑。
-- **现代化界面**：紫色调主题、侧边栏导航、Element Plus 组件库，桌面端体验为主。
+- Vue 3
+- Vite 5
+- Pinia
+- Vue Router
+- Element Plus
+- pnpm
+- Docker + nginx
 
-## 🛠 技术栈 (Tech Stack)
+## Local Dev
 
-- **核心框架**: [Vue 3](https://vuejs.org/)（Composition + Options 混合使用）
-- **构建工具**: [Vite 5](https://vitejs.dev/)
-- **状态管理**: [Pinia 2](https://pinia.vuejs.org/)，配合 [`pinia-plugin-persistedstate`](https://prazdevs.github.io/pinia-plugin-persistedstate/) 写入 `localStorage` 实现持久化
-- **路由管理**: [Vue Router 4](https://router.vuejs.org/)
-- **UI 组件库**: [Element Plus](https://element-plus.org/) + [@element-plus/icons-vue](https://element-plus.org/en-US/component/icon.html)
-- **样式**: SCSS（`sass`）
-- **工具库**:
-  - [Axios](https://axios-http.com/)：HTTP 请求
-  - [Fuse.js](https://www.fusejs.io/)：模糊搜索
-  - [pdfmake](http://pdfmake.org/)：PDF 生成
-  - [marked](https://marked.js.org/) + [highlight.js](https://highlightjs.org/)：Markdown / 代码高亮
-  - [mermaid](https://mermaid.js.org/)：UML / 流程图渲染（NCRE3 模块用）
-
-## 🚀 快速开始 (Getting Started)
-
-### 环境要求
-- Node.js（推荐 LTS，≥ 18）
-- pnpm（推荐）或 npm
-
-### 安装步骤
-
-1. **克隆项目**
-   ```bash
-   git clone https://github.com/fgh23333/crawlerVisualization.git
-   cd crawlerVisualization
-   ```
-
-2. **安装依赖**
-   ```bash
-   pnpm install
-   # 或者
-   npm install
-   ```
-
-3. **启动开发服务器**
-   ```bash
-   pnpm dev
-   # 或者
-   npm run dev
-   ```
-   默认运行在 `http://localhost:5173/`。可通过 `pnpm dev --port 8080` 自定义端口。
-
-4. **构建生产版本**
-   ```bash
-   pnpm build
-   ```
-   产物输出到 `dist/`。可用 `pnpm preview` 在本地预览。
-
-## 📂 项目结构 (Project Structure)
-
-```
-src/
-├── assets/           # 静态资源（题库 JSON、图片、SVG 图标）
-├── components/       # 公共组件 (questionCard, examCard, examRecord 等)
-├── router/           # 路由配置（包含 / / /newHome / /ncre3 三套入口）
-├── stores/           # Pinia 状态管理
-│   ├── question.js   # 题库 / 答题 / 错题 / 收藏 / 标记 / 学习记录
-│   └── ncre3.js      # NCRE3 题库状态
-├── utils/            # 工具函数（PDF 生成、题目加载、Markdown 渲染等）
-├── views/            # 页面视图
-│   ├── new/          # 主入口 UI（/newHome 路径下）
-│   ├── ncre3/        # NCRE 三级题库 UI
-│   └── ...           # 旧版表格化视图（/rightWrong、/multipleChoice 等）
-├── App.vue           # 根组件
-└── main.js           # 入口文件
+```bash
+pnpm install
+pnpm dev
 ```
 
-## 💾 数据持久化
+默认开发地址：`http://localhost:5173/`
 
-Pinia store 通过 `pinia-plugin-persistedstate` 将以下字段写入 `localStorage`：
+## Build
 
-- `wrongQuestions` — 错题本
-- `likeList` — 收藏夹
-- `markList` — 标记列表
-- `userRecords` — 学习记录（每题做题次数 / 错题次数 / 最近错题日期）
+```bash
+pnpm build
+```
 
-清除浏览器站点数据即可重置。
+产物输出到 `dist/`。
 
-## 📄 许可证 (License)
+## Docker
 
-本项目采用 [MIT License](LICENSE) 开源许可证。
+```bash
+docker build -t political-question-store .
+docker run -d --name political-question-store --restart unless-stopped -p 17423:80 political-question-store
+```
+
+访问：`http://<server-ip>:17423/`
+
+## CI/CD
+
+GitHub Actions 工作流位于 `.github/workflows/deploy.yml`。
+
+触发方式：
+
+- push 到 `main`
+- push 到 `dev-Kohakuwu`
+- 手动运行 workflow
+
+部署流程：
+
+1. GitHub Actions 构建 Docker 镜像
+2. 将镜像 tar 包通过 SSH 上传到服务器
+3. 服务器执行 `docker load`
+4. 重启 `political-question-store` 容器
+5. 默认端口映射：`17423:80`
+
+## Repo Secrets
+
+需要配置以下 GitHub Repository Secrets：
+
+```text
+SSH_HOST
+SSH_PORT
+SSH_USER
+SSH_KEY
+```
+
+`SSH_KEY` 填私钥内容。服务器需要已安装 Docker，并且 `SSH_USER` 可以直接执行 `docker`，或可以免密执行 `sudo docker`。
+
+## Optional Variable
+
+如需修改宿主机端口，可配置 GitHub Repository Variable：
+
+```text
+APP_PORT
+```
+
+不配置时默认使用 `17423`。

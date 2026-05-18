@@ -1,0 +1,133 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev-Kohakuwu
+  workflow_dispatch:
+    inputs:
+      app_port:
+        description: Server host port mapped to container port 80
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME: political-question-store
+  IMAGE_NAME: political-question-store
+  APP_PORT: ${{ github.event.inputs.app_port || vars.APP_PORT || '17423' }}
+
+jobs:
+  deploy:
+    name: Build image and deploy over SSH
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST || secrets.ssh_host }}
+      SSH_KEY: ${{ secrets.SSH_KEY || secrets.ssh_key }}
+      SSH_PORT: ${{ secrets.SSH_PORT || secrets.ssh_port }}
+      SSH_USER: ${{ secrets.SSH_USER || secrets.ssh_user }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve deployment config
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=0
+          for name in SSH_HOST SSH_KEY SSH_PORT SSH_USER; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required repository secret: ${name}"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+          if ! [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
+            echo "::error::APP_PORT must be a numeric TCP port, got '${APP_PORT}'"
+            exit 1
+          fi
+
+          echo "IMAGE_TAG=${IMAGE_NAME}:${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "IMAGE_TARBALL=${IMAGE_NAME}-${GITHUB_SHA}.tar.gz" >> "$GITHUB_ENV"
+          echo "REMOTE_TARBALL=/tmp/${IMAGE_NAME}-${GITHUB_SHA}.tar.gz" >> "$GITHUB_ENV"
+
+      - name: Build Docker image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull --build-arg VCS_REF="$GITHUB_SHA" -t "$IMAGE_TAG" .
+          docker save "$IMAGE_TAG" | gzip > "$IMAGE_TARBALL"
+
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload Docker image
+        shell: bash
+        run: |
+          set -euo pipefail
+          scp \
+            -i ~/.ssh/deploy_key \
+            -P "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
+            "$IMAGE_TARBALL" \
+            "$SSH_USER@$SSH_HOST:$REMOTE_TARBALL"
+
+      - name: Deploy container
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh \
+            -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
+            "$SSH_USER@$SSH_HOST" \
+            "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' IMAGE_TAG='$IMAGE_TAG' REMOTE_TARBALL='$REMOTE_TARBALL' sh -s" <<'REMOTE'
+          set -eu
+
+          if docker info >/dev/null 2>&1; then
+            DOCKER_CMD="docker"
+          elif command -v sudo >/dev/null 2>&1 && sudo -n docker info >/dev/null 2>&1; then
+            DOCKER_CMD="sudo docker"
+          else
+            echo "Docker is not available for this SSH user. Install Docker or allow passwordless sudo for docker." >&2
+            exit 1
+          fi
+
+          OLD_IMAGE_ID="$($DOCKER_CMD inspect -f '{{.Image}}' "$APP_NAME" 2>/dev/null || true)"
+
+          gunzip -c "$REMOTE_TARBALL" | $DOCKER_CMD load
+          $DOCKER_CMD rm -f "$APP_NAME" >/dev/null 2>&1 || true
+          $DOCKER_CMD run -d \
+            --name "$APP_NAME" \
+            --restart unless-stopped \
+            -p "${APP_PORT}:80" \
+            "$IMAGE_TAG"
+
+          rm -f "$REMOTE_TARBALL"
+
+          if [ -n "$OLD_IMAGE_ID" ]; then
+            $DOCKER_CMD image rm "$OLD_IMAGE_ID" >/dev/null 2>&1 || true
+          fi
+
+          $DOCKER_CMD ps \
+            --filter "name=^/${APP_NAME}$" \
+            --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+          REMOTE
