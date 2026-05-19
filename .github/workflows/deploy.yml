@@ -62,37 +62,6 @@ jobs:
           echo "IMAGE_TARBALL=${IMAGE_NAME}-${GITHUB_SHA}.tar.gz" >> "$GITHUB_ENV"
           echo "REMOTE_TARBALL=/tmp/${IMAGE_NAME}-${GITHUB_SHA}.tar.gz" >> "$GITHUB_ENV"
 
-      - name: Prepare SSH
-        shell: bash
-        run: |
-          set -euo pipefail
-          install -m 700 -d ~/.ssh
-          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          if ! ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null; then
-            echo "::error::SSH_KEY must be an unencrypted private key matching the server user's authorized_keys."
-            exit 1
-          fi
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
-
-      - name: Test SSH connection
-        shell: bash
-        run: |
-          set -euo pipefail
-          SSH_OPTS=(
-            -o IdentitiesOnly=yes
-            -o PreferredAuthentications=publickey
-            -o PasswordAuthentication=no
-            -o KbdInteractiveAuthentication=no
-            -o BatchMode=yes
-          )
-          ssh \
-            -i ~/.ssh/deploy_key \
-            -p "$SSH_PORT" \
-            "${SSH_OPTS[@]}" \
-            "$SSH_USER@$SSH_HOST" \
-            "true"
-
       - name: Build Docker image
         shell: bash
         run: |
@@ -100,21 +69,23 @@ jobs:
           docker build --pull --build-arg VCS_REF="$GITHUB_SHA" -t "$IMAGE_TAG" .
           docker save "$IMAGE_TAG" | gzip > "$IMAGE_TARBALL"
 
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
       - name: Upload Docker image
         shell: bash
         run: |
           set -euo pipefail
-          SSH_OPTS=(
-            -o IdentitiesOnly=yes
-            -o PreferredAuthentications=publickey
-            -o PasswordAuthentication=no
-            -o KbdInteractiveAuthentication=no
-            -o BatchMode=yes
-          )
           scp \
             -i ~/.ssh/deploy_key \
             -P "$SSH_PORT" \
-            "${SSH_OPTS[@]}" \
+            -o IdentitiesOnly=yes \
             "$IMAGE_TARBALL" \
             "$SSH_USER@$SSH_HOST:$REMOTE_TARBALL"
 
@@ -122,17 +93,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SSH_OPTS=(
-            -o IdentitiesOnly=yes
-            -o PreferredAuthentications=publickey
-            -o PasswordAuthentication=no
-            -o KbdInteractiveAuthentication=no
-            -o BatchMode=yes
-          )
           ssh \
             -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
-            "${SSH_OPTS[@]}" \
+            -o IdentitiesOnly=yes \
             "$SSH_USER@$SSH_HOST" \
             "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' IMAGE_TAG='$IMAGE_TAG' REMOTE_TARBALL='$REMOTE_TARBALL' sh -s" <<'REMOTE'
           set -eu
