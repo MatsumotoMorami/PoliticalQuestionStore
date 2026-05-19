@@ -58,7 +58,7 @@ export const makePdf = async (method, data, pdfTitle, store, message) => {
         fontSize: 10
     });
     temp.push({
-        text: `题库网站：https://bank.635262140.xyz/newHome`,
+        text: `题库网站：https://bank.635262140.xyz/`,
         fontSize: 10
     });
     temp.push({

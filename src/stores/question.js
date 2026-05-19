@@ -177,7 +177,7 @@ export const useQuestionStore = defineStore('question', () => {
     questionBank.value = quiz
   }
 
-  // Aliases retained for backward compat with examPage.vue.
+  // Aliases retained for backward compatibility with older callers.
   // NOTE: original aliases incorrectly mapped favorite-add to wrong-question-add.
   // Now these correctly hit the favorites/like list.
   function addFavoriteQuestion(question) { addLikeQuestion(question) }

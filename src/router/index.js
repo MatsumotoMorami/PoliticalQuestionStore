@@ -3,48 +3,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: () => import('../views/HomeView.vue'),
-    children: [
-      {
-        path: 'subject/:lesson',
-        name: 'subject',
-        component: () => import('@/views/subject.vue')
-      },
-      {
-        path: 'rightWrong/:lesson',
-        name: 'rightWrong',
-        component: () => import('@/views/rightWrong.vue')
-      },
-      {
-        path: 'singleChoice/:lesson',
-        name: 'singleChoice',
-        component: () => import('@/views/singleChoice.vue')
-      },
-      {
-        path: 'multipleChoice/:lesson',
-        name: 'multipleChoice',
-        component: () => import('@/views/multipleChoice.vue')
-      },
-      {
-        path: 'fillingBlank/:lesson',
-        name: 'fillingBlank',
-        component: () => import('@/views/fillingBlank.vue')
-      },
-      {
-        path: 'favorites',
-        name: 'oldFavorites',
-        component: () => import('@/views/new/favorites.vue')
-      }
-    ]
-  },
-  {
-    path: '/newHome',
     name: 'newHome',
     component: () => import('@/views/new/newHome.vue'),
     children: [
       {
         path: '',
+        name: 'theHome',
         component: () => import('@/views/new/theHome.vue'),
       },
       {
@@ -73,6 +37,22 @@ const routes = [
         component: () => import('@/views/new/chatView.vue')
       }
     ]
+  },
+  {
+    path: '/newHome',
+    redirect: to => ({ path: '/', query: to.query, hash: to.hash })
+  },
+  {
+    path: '/newHome/:pathMatch(.*)*',
+    redirect: to => {
+      const pathMatch = to.params.pathMatch
+      const path = Array.isArray(pathMatch) ? pathMatch.join('/') : pathMatch
+      return {
+        path: `/${path || ''}`,
+        query: to.query,
+        hash: to.hash
+      }
+    }
   }
 ]
 

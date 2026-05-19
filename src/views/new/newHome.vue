@@ -4,7 +4,7 @@
         <el-container>
     <el-aside :width="isCollapsed ? '0px' : '262px'" class="sidebar" :class="{ 'is-collapsed': isCollapsed }">
         <div class="sidebar-content">
-            <router-link to="/newHome" class="logo-link">
+            <router-link to="/" class="logo-link">
                 <div class="title">
                     <img src="@/assets/icon/icon-title.png" class="icon">
                     <div class="titleCover">
@@ -21,36 +21,30 @@
                             <span>{{ list[i].subject }}</span>
                         </template>
                         <el-menu-item-group>
-                            <el-menu-item class="option" :index="'/newHome/subject/' + list[i].src">总题库</el-menu-item>
-                            <el-menu-item class="option" :index="'/newHome/rightWrong/' + list[i].src">判断题</el-menu-item>
-                            <el-menu-item class="option" :index="'/newHome/singleChoice/' + list[i].src">单选题</el-menu-item>
-                            <el-menu-item class="option" :index="'/newHome/multipleChoice/' + list[i].src">多选题</el-menu-item>
-                            <el-menu-item class="option" :index="'/newHome/fillingBlank/' + list[i].src">填空题</el-menu-item>
-                            <el-menu-item class="option" :index="'/newHome/exam/' + list[i].src + '/1'">在线练习</el-menu-item>
+                            <el-menu-item class="option" :index="'/subject/' + list[i].src">总题库</el-menu-item>
+                            <el-menu-item class="option" :index="'/rightWrong/' + list[i].src">判断题</el-menu-item>
+                            <el-menu-item class="option" :index="'/singleChoice/' + list[i].src">单选题</el-menu-item>
+                            <el-menu-item class="option" :index="'/multipleChoice/' + list[i].src">多选题</el-menu-item>
+                            <el-menu-item class="option" :index="'/fillingBlank/' + list[i].src">填空题</el-menu-item>
+                            <el-menu-item class="option" :index="'/exam/' + list[i].src + '/1'">在线练习</el-menu-item>
                         </el-menu-item-group>
                     </el-sub-menu>
                 </el-menu>
             </div>
             <div class="buttonContainer">
-                <router-link to="/">
-                    <div class="tab">
-                        <img class="image" src="@/assets/icon/icon-back.svg">
-                        <div class="text">返回旧版</div>
-                    </div>
-                </router-link>
-                <router-link to="/newHome/chat">
+                <router-link to="/chat">
                     <div class="tab">
                         <img class="image" src="@/assets/icon/icon-chat.svg">
                         <div class="text">AI对话(Beta)</div>
                     </div>
                 </router-link>
-                <router-link to="/newHome/favorites">
+                <router-link to="/favorites">
                     <div class="tab">
                         <img class="image" src="@/assets/icon/icon-favorites.svg">
                         <div class="text">收藏夹</div>
                     </div>
                 </router-link>
-                <router-link to="/newHome/about">
+                <router-link to="/about">
                     <div class="tab">
                         <img class="image" src="@/assets/icon/icon-info.svg">
                         <div class="text">关于</div>

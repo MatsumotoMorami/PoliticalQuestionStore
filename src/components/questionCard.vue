@@ -77,7 +77,7 @@
                 </button>
               </div>
               <div class="questionType">
-                <span v-if="$route.path == '/newHome/favorites'">
+                <span v-if="$route.name === 'favorites'">
                   {{ abbreviationSubjectList[showList[i].abbreviationSubject] }} -
                 </span>
                 <span>判断</span>
@@ -138,7 +138,7 @@
                 </button>
               </div>
               <div class="questionType">
-                <span v-if="$route.path == '/newHome/favorites'">
+                <span v-if="$route.name === 'favorites'">
                   {{ abbreviationSubjectList[showList[i].abbreviationSubject] }} -
                 </span>
                 <span>填空</span>
@@ -199,7 +199,7 @@
                 </button>
               </div>
               <div class="questionType">
-                <span v-if="$route.path == '/newHome/favorites'">
+                <span v-if="$route.name === 'favorites'">
                   {{ abbreviationSubjectList[showList[i].abbreviationSubject] }} -
                 </span>
                 <span>单选</span>
@@ -267,7 +267,7 @@
                 </button>
               </div>
               <div class="questionType">
-                <span v-if="$route.path == '/newHome/favorites'">
+                <span v-if="$route.name === 'favorites'">
                   {{ abbreviationSubjectList[showList[i].abbreviationSubject] }} -
                 </span>
                 <span>多选</span>
@@ -441,7 +441,7 @@ export default {
   async created() {
     this.lesson = this.$route.params.lesson;
     this.type = this.$route.params.type;
-    if (this.$route.path == "/newHome/favorites") {
+    if (this.isFavoritesRoute()) {
       this.list = this.favList
     } else {
       try {
@@ -458,7 +458,7 @@ export default {
   watch: {
     subjectOptions: {
       handler(newValue, oldValue) {
-        if (this.$route.path == '/newHome/favorites') {
+        if (this.isFavoritesRoute()) {
           switch (newValue) {
             case 'all':
               this.list = this.getMergedFavoriteList()
@@ -481,7 +481,7 @@ export default {
     },
     favList: {
       handler(newValue) {
-        if (this.$route.path == "/newHome/favorites") {
+        if (this.isFavoritesRoute()) {
           this.showList = newValue
           this.initShowAnswers();
         }
@@ -490,7 +490,7 @@ export default {
     '$route': async function (to, from) {
       this.lesson = to.params.lesson;
       this.type = to.params.type;
-      if (this.$route.path == "/newHome/favorites") {
+      if (this.isFavoritesRoute()) {
         return
       } else {
         try {
@@ -531,6 +531,9 @@ export default {
     },
   },
   methods: {
+    isFavoritesRoute() {
+      return this.$route.name === 'favorites';
+    },
     initShowAnswers() {
       // Try to restore from localStorage
       const storageKey = this.getAnswerStorageKey();
@@ -547,7 +550,7 @@ export default {
       });
     },
     getAnswerStorageKey() {
-      if (this.$route.path === '/newHome/favorites') return 'viewed_favorites';
+      if (this.isFavoritesRoute()) return 'viewed_favorites';
       const lesson = this.$route.params.lesson;
       const type = this.$route.params.type;
       if (lesson && type) return `viewed_${lesson}_${type}`;

@@ -49,7 +49,7 @@ const questionTypeName = computed(() => {
           </transition>
         </div>
         <div class="questionType">
-          <span v-if="$route.path == '/newHome/favorites'">
+          <span v-if="$route.name === 'favorites'">
             {{ question.subject }} -
           </span>
           <span>{{ questionTypeName }}</span>

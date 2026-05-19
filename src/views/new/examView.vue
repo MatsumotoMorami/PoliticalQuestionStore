@@ -147,7 +147,13 @@ export default {
     watch: {
         value: function (newval, oldval) {
             if (newval && newval.toString() !== this.$route.params.id.toString()) {
-                this.$router.push({ path: '/newHome/exam/' + this.$route.params.lesson + '/' + newval })
+                this.$router.push({
+                    name: 'examView',
+                    params: {
+                        lesson: this.$route.params.lesson,
+                        id: newval
+                    }
+                })
             }
         },
         '$route': async function (to, from) {
